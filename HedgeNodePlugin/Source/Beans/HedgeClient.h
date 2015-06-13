@@ -6,7 +6,7 @@ class HedgeClient : public PersistentEntity
 public:
 
 	//xuid for now
-	uint32_t ClientID;
+	uint64_t ClientID;
 	hAddress addr;
 	uint32_t LastSeen;
 	uint16_t LastPacketSequenceID;

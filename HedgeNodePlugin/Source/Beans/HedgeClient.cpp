@@ -15,7 +15,7 @@ HedgeClient::HedgeClient(){
 
 HedgeClient::HedgeClient(ByteBuffer *InBuffer){
 
-	InBuffer->ReadUInt32(&ClientID);
+	InBuffer->ReadUInt64(&ClientID);
 	InBuffer->ReadUInt32(&LastSeen);
 	InBuffer->ReadUInt16(&LastPacketSequenceID);
 	InBuffer->ReadUInt32(&SessionID);
