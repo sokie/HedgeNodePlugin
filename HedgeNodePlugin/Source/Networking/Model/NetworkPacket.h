@@ -16,7 +16,7 @@ namespace Network
         
 	public:
 
-		uint16_t ApplicationID;
+		uint32_t ApplicationID;
 		uint16_t SequenceID;
 		EventType eventType;
 		uint32_t	TimeStamp;
@@ -24,7 +24,7 @@ namespace Network
 		void *DataBuffer;
         
         NetworkPacket();
-        NetworkPacket(uint16_t appId, uint16_t seqId, EventType evType, uint32_t tmstmp, uint8_t len, void *buffer);
+        NetworkPacket(uint32_t appId, uint16_t seqId, EventType evType, uint32_t tmstmp, uint8_t len, void *buffer);
         NetworkPacket(ByteBuffer *InBuffer);
         ~NetworkPacket(void);
         bool Serialize(ByteBuffer *OutBuffer);

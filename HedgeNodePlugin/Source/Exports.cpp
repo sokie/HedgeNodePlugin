@@ -69,6 +69,6 @@ const char *GetDependency(uint32_t Index)
 }
 
 uint64_t* SendMessageB(const char* Message, void* Callback){
-	uint64_t ret = 1;
+	static uint64_t ret = 1;
 	return &ret;
 }

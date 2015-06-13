@@ -11,7 +11,7 @@ namespace Network
 		username = "";
 	}
 
-	PingPacket::PingPacket(uint32_t cId, uint32_t sessID, bool isAuth, bool isAnon, std::string user){
+	PingPacket::PingPacket(uint64_t cId, uint32_t sessID, bool isAuth, bool isAnon, std::string user){
 		ClientID = cId;
 		SessionID = sessID;
 		isAuthenticated = isAuth;
@@ -20,7 +20,7 @@ namespace Network
 	}
 
 	PingPacket::PingPacket(ByteBuffer *InBuffer){
-		InBuffer->ReadUInt32(&ClientID);
+		InBuffer->ReadUInt64(&ClientID);
 		InBuffer->ReadUInt32(&SessionID);
 		InBuffer->ReadBoolean(&isAuthenticated);
 		InBuffer->ReadBoolean(&isAnonymous);
@@ -32,7 +32,7 @@ namespace Network
 	}
 
 	bool PingPacket::Serialize(ByteBuffer *OutBuffer){
-		OutBuffer->WriteUInt32(ClientID);
+		OutBuffer->WriteUInt64(ClientID);
 		OutBuffer->WriteUInt32(SessionID);
 		OutBuffer->WriteBoolean(isAuthenticated);
 		OutBuffer->WriteBoolean(isAnonymous);

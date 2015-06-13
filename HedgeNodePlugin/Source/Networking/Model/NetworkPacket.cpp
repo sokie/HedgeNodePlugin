@@ -11,7 +11,7 @@ namespace Network
         DataBuffer = nullptr;
     }
     
-    NetworkPacket::NetworkPacket(uint16_t appId, uint16_t seqId, EventType evType, uint32_t	tmstmp, uint8_t	len, void *buffer){
+    NetworkPacket::NetworkPacket(uint32_t appId, uint16_t seqId, EventType evType, uint32_t	tmstmp, uint8_t	len, void *buffer){
         ApplicationID = appId;
         SequenceID = seqId;
         eventType = evType;
@@ -24,7 +24,7 @@ namespace Network
         int16_t *eventType = (int16_t *)malloc(sizeof(int16_t));
         InBuffer->ReadInt16(eventType);
         //eventType = static_cast<EventType>(eventType);
-        InBuffer->ReadUInt16(&ApplicationID);
+        InBuffer->ReadUInt32(&ApplicationID);
         InBuffer->ReadUInt16(&SequenceID);
         InBuffer->ReadUInt32(&TimeStamp);
         InBuffer->ReadUInt8(&DataLength);
@@ -40,7 +40,7 @@ namespace Network
     bool NetworkPacket::Serialize(ByteBuffer *OutBuffer){
         //EventType first so we can peak at packets
         OutBuffer->WriteInt16(eventType);
-        OutBuffer->WriteUInt16(ApplicationID);
+        OutBuffer->WriteUInt32(ApplicationID);
         OutBuffer->WriteUInt16(SequenceID);
         OutBuffer->WriteUInt32(TimeStamp);
         OutBuffer->WriteUInt8(DataLength);
