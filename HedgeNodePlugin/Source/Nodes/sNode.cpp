@@ -70,6 +70,26 @@ namespace Nodes
 					Network::SocketManager::Send_UDP(&sender, buf.GetLength(), buf.GetBuffer<void>());
 					break;
 				}
+				case HNFriendAtIndexRequest: {
+					ByteBuffer buf = ByteBuffer::ByteBuffer();
+					Network::NetworkPacket *friendResponse = new Network::NetworkPacket();
+					friendResponse->ApplicationID = packet->ApplicationID;
+					friendResponse->SequenceID = packet->SequenceID;
+					friendResponse->eventType = HNFriendAtIndexResponse;
+					friendResponse->TimeStamp = time(NULL);
+					friendResponse->DataLength = sizeof(uint64_t);
+					int32_t index = *((int32_t *)packet->DataBuffer);
+					uint64_t friendId = 0x1100001DEADC0DE;
+					if (Clients.size > index){
+						friendId = Clients.at(index).ClientID;
+					}
+					
+					friendResponse->DataBuffer = &friendId;
+					friendResponse->Serialize(&buf);
+					sender.Port = 20000;
+					Network::SocketManager::Send_UDP(&sender, buf.GetLength(), buf.GetBuffer<void>());
+					break;
+				}
 				default:
 					break;
 				}
