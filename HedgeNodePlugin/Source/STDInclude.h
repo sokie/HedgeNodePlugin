@@ -142,6 +142,5 @@
 
 // Node system
 #include "Nodes\sNode.h"
-#include "Nodes\cNode.h"
 
 #pragma endregion
