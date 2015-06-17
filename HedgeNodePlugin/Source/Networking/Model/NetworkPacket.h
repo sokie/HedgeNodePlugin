@@ -7,6 +7,8 @@ typedef enum
     HNPingResponse = 2,
     HNFriendsRequest = 3,
     HNFriendsResponse = 4,
+	HNFriendCountRequest = 5,
+	HNFriendCountResponse = 6
 } EventType;
 
 namespace Network

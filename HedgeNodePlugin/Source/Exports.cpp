@@ -11,22 +11,12 @@
 
 uint32_t PreInit()
 {
-	Global::Node_is_sNode = GetPrivateProfileIntA("Node", "IsServerNode", 0, "./HedgeNode.ini") == TRUE;
 	Global::Listen_Port = GetPrivateProfileIntA("Node", "ListenUDPPort", 31337, "./HedgeNode.ini");
 	GetPrivateProfileStringA("Node", "DatabaseName", "./Node.db", Global::Database_name, 16, "./HedgeNode.ini");
 
 	Network::SocketManager::InitializeManager();
-
-	if (Global::Node_is_sNode){
-
-		Nodes::SNode::InitializeNode();
-
-	}
-	else{
-		
-		Nodes::SNode::InitializeNode();
-
-	}
+	//we can be only snodes as of now
+	Nodes::SNode::InitializeNode();
 
 	return 1;
 }

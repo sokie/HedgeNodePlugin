@@ -28,7 +28,6 @@
     <ClCompile Include="Source\Networking\Model\NetworkPacket.cpp" />
     <ClCompile Include="Source\Networking\Model\PingPacket.cpp" />
     <ClCompile Include="Source\Networking\SocketManager.cpp" />
-    <ClCompile Include="Source\Nodes\cNode.cpp" />
     <ClCompile Include="Source\Nodes\sNode.cpp" />
     <ClCompile Include="Source\Util\ByteBuffer.cpp" />
     <ClCompile Include="Source\Util\hString.cpp" />
@@ -46,7 +45,6 @@
     <ClInclude Include="Source\Networking\Model\NetworkPacket.h" />
     <ClInclude Include="Source\Networking\Model\PingPacket.h" />
     <ClInclude Include="Source\Networking\SocketManager.h" />
-    <ClInclude Include="Source\Nodes\cNode.h" />
     <ClInclude Include="Source\Nodes\sNode.h" />
     <ClInclude Include="Source\STDInclude.h" />
     <ClInclude Include="Source\Util\ByteBuffer.h" />

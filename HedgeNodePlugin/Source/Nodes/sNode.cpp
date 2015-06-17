@@ -17,23 +17,25 @@ namespace Nodes
 
 	DWORD _stdcall SNode::ServerNodeCommandReceiver(void  *lparam)
 	{
-		Network::SocketManager::Create_UDP(&Global::Listen_Port, false);
+		uint16_t port = 31337;
+		Network::SocketManager::Create_UDP(&port, false);
 
 		char *recvBuffer = (char *)malloc(sizeof(char) * 1024);
 		hAddress sender = hAddress::hAddress();
 		while (true){
-			int len = Network::SocketManager::Receive_UDP(Global::Listen_Port, 1024, recvBuffer, &sender);
+			int len = Network::SocketManager::Receive_UDP(port, 1024, recvBuffer, &sender);
 			if (len > 0){
-				ByteBuffer recv = ByteBuffer::ByteBuffer((uint8_t *)recvBuffer, len);
+				ByteBuffer recv = ByteBuffer::ByteBuffer(len, (uint8_t *)recvBuffer);
 
 				Network::NetworkPacket *packet = new Network::NetworkPacket(&recv);
+
 				switch (packet->eventType){
 
 				case HNPingRequest: {
-					ByteBuffer pingBuffer = ByteBuffer::ByteBuffer((uint8_t *)packet->DataBuffer, packet->DataLength);
+					ByteBuffer pingBuffer = ByteBuffer::ByteBuffer(packet->DataLength, (uint8_t *)packet->DataBuffer);
 					Network::PingPacket *pingPacket = new Network::PingPacket(&pingBuffer);
 
-					HedgePrint("Received packet from client from %s with xuid %u\n", inet_ntoa(*(in_addr *)sender.Address), pingPacket->ClientID);
+					HedgePrint("Received packet from client from %ul with xuid %u\n", htonl(sender.Address), pingPacket->ClientID);
 					HedgeClient *client = new HedgeClient();
 					client->ClientID = pingPacket->ClientID;
 					client->isAnonymous = pingPacket->isAnonymous;
@@ -49,7 +51,24 @@ namespace Nodes
 					buf.WriteInt16(1);
 					std::string s("hello");
 					buf.WriteString(s);
-					Network::SocketManager::Send_UDP(&sender, buf.Length(), buf.GetBuffer());
+					sender.Port = 20000;
+					Network::SocketManager::Send_UDP(&sender, buf.GetLength(), buf.GetBuffer<void>());
+					break;
+				}
+				case HNFriendCountRequest: {
+					ByteBuffer buf = ByteBuffer::ByteBuffer();
+					Network::NetworkPacket *friendResponse = new Network::NetworkPacket();
+					friendResponse->ApplicationID = packet->ApplicationID;
+					friendResponse->SequenceID = packet->SequenceID;
+					friendResponse->eventType = HNFriendCountResponse;
+					friendResponse->TimeStamp = time(NULL);
+					friendResponse->DataLength = sizeof(uint32_t);
+					uint32_t size = Clients.size();
+					friendResponse->DataBuffer = &size;
+					friendResponse->Serialize(&buf);
+					sender.Port = 20000;
+					Network::SocketManager::Send_UDP(&sender, buf.GetLength(), buf.GetBuffer<void>());
+					break;
 				}
 				default:
 					break;
