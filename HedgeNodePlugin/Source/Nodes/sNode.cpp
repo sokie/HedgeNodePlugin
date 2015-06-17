@@ -80,7 +80,7 @@ namespace Nodes
 					friendResponse->DataLength = sizeof(uint64_t);
 					int32_t index = *((int32_t *)packet->DataBuffer);
 					uint64_t friendId = 0x1100001DEADC0DE;
-					if (Clients.size > index){
+					if (Clients.size() > index){
 						friendId = Clients.at(index).ClientID;
 					}
 					
