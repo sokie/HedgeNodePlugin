@@ -25,8 +25,6 @@
     <ClCompile Include="Source\ExternalIncludes\Sqlite3\shell.c" />
     <ClCompile Include="Source\ExternalIncludes\Sqlite3\sqlite3.c" />
     <ClCompile Include="Source\GlobalVariables.cpp" />
-    <ClCompile Include="Source\Networking\Model\NetworkPacket.cpp" />
-    <ClCompile Include="Source\Networking\Model\PingPacket.cpp" />
     <ClCompile Include="Source\Networking\SocketManager.cpp" />
     <ClCompile Include="Source\Nodes\sNode.cpp" />
     <ClCompile Include="Source\Util\ByteBuffer.cpp" />
@@ -42,8 +40,8 @@
     <ClInclude Include="Source\GlobalVariables.h" />
     <ClInclude Include="Source\Models\PersistentEntity.h" />
     <ClInclude Include="Source\Networking\DataTypes.h" />
-    <ClInclude Include="Source\Networking\Model\NetworkPacket.h" />
-    <ClInclude Include="Source\Networking\Model\PingPacket.h" />
+    <ClInclude Include="Source\Networking\Model\ISerializable.h" />
+    <ClInclude Include="Source\Networking\Model\NetworkDataTypes.h" />
     <ClInclude Include="Source\Networking\SocketManager.h" />
     <ClInclude Include="Source\Nodes\sNode.h" />
     <ClInclude Include="Source\STDInclude.h" />

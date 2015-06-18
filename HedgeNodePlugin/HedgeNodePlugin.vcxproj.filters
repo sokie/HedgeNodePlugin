@@ -36,12 +36,6 @@
     <ClCompile Include="Source\Networking\SocketManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Networking\Model\NetworkPacket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Networking\Model\PingPacket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Nodes\sNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -86,12 +80,6 @@
     <ClInclude Include="Source\Networking\SocketManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Networking\Model\NetworkPacket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Networking\Model\PingPacket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Nodes\sNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -99,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Util\hString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Networking\Model\ISerializable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Networking\Model\NetworkDataTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

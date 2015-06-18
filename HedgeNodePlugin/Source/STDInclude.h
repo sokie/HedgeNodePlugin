@@ -127,8 +127,8 @@
 // Networking.
 #include "Networking\DataTypes.h"
 #include "Networking\SocketManager.h"
-#include "Networking\Model\NetworkPacket.h"
-#include "Networking\Model\PingPacket.h"
+#include "Networking\Model\ISerializable.h"
+#include "Networking\Model\NetworkDataTypes.h"
 
 // Database.
 #include "Database\DataTypes.h"
