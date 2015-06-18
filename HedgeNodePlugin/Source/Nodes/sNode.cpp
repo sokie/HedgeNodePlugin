@@ -90,7 +90,7 @@ namespace Nodes
 		friendCountPacket.SequenceID = inPacket.SequenceID;
 		friendCountPacket.eventType = HNFriendCountResponse;
 		friendCountPacket.TimeStamp = time(NULL);
-		friendCountPacket.friendsCount = 3;
+		friendCountPacket.friendsCount = Clients.size();
 
 		sender.Port = 20000;
 		ByteBuffer outBuffer;
