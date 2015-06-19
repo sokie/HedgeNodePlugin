@@ -1,6 +1,6 @@
 #pragma once
 
-using ByteString	= std::basic_string < uint8_t > ;
+using ByteString = std::basic_string < uint8_t > ;
 
 class HedgeLobby : public PersistentEntity
 {
@@ -14,10 +14,9 @@ public:
     uint32_t Gametype;
     ByteString LobbyBlobData;
     
-    HedgeLobby();
-    //HedgeClient(uint16_t appId, uint16_t seqId, EventType evType, uint32_t tmstmp, uint8_t len, void *buffer);
+	HedgeLobby();
     HedgeLobby(ByteBuffer *InBuffer);
-    ~HedgeLobby(void);
+
     bool Serialize(ByteBuffer *OutBuffer);
     //static bool Deserialize(ByteBuffer *InBuffer);
     
