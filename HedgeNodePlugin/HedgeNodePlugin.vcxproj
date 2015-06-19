@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Beans\HedgeClient.cpp" />
+    <ClCompile Include="Source\Beans\HedgeLobby.cpp" />
     <ClCompile Include="Source\Database\DatabaseManager.cpp" />
     <ClCompile Include="Source\Exports.cpp" />
     <ClCompile Include="Source\ExternalIncludes\Sqlite3\shell.c" />
@@ -32,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Beans\HedgeClient.h" />
+    <ClInclude Include="Source\Beans\HedgeLobby.h" />
     <ClInclude Include="Source\Database\DatabaseManager.h" />
     <ClInclude Include="Source\Database\DataTypes.h" />
     <ClInclude Include="Source\Exports.h" />

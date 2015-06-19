@@ -6,10 +6,18 @@ typedef enum
     HNPingResponse = 2,
     HNFriendsRequest = 3,
     HNFriendsResponse = 4,
-    HNFriendCountRequest = 5,
-    HNFriendCountResponse = 6,
-    HNFriendAtIndexRequest = 7,
-    HNFriendAtIndexResponse = 8
+	HNFriendCountRequest = 5,
+	HNFriendCountResponse = 6,
+	HNFriendAtIndexRequest = 7,
+	HNFriendAtIndexResponse = 8,
+	HNCreateSessionRequest = 9,
+	HNCreateSessionResponse = 10,
+	HNUpdateSessionRequest = 11,
+	HNUpdateSessionResponse = 12,
+	HNFindSessionsRequest = 13,
+	HNFindSessionsResponse = 14,
+	HNDeleteSessionRequest = 15,
+	HNDeleteSessionResponse = 16
 } EventType;
 
 namespace Network

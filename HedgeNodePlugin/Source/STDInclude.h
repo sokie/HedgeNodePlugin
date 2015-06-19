@@ -101,6 +101,7 @@
 #include <vector>
 #include <mutex>
 #include <fstream>
+#include <memory>
 
 // Project headers.
 #include "Exports.h"
@@ -139,6 +140,7 @@
 
 //Our beans
 #include "Beans\HedgeClient.h"
+#include "Beans\HedgeLobby.h"
 
 // Node system
 #include "Nodes\sNode.h"

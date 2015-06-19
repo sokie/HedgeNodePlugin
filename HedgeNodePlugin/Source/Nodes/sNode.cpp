@@ -12,8 +12,12 @@
 
 namespace Nodes
 {
-	std::vector<HedgeClient> SNode::Clients;
-	std::mutex SNode::ThreadSafe;
+	std::vector<uint64_t> SNode::ClientIDS;
+	std::unordered_map<uint64_t, std::shared_ptr<HedgeClient>> SNode::Clients;
+	std::unordered_map<uint64_t, std::shared_ptr<HedgeLobby>> SNode::Lobbies;
+
+	std::mutex SNode::ClientsMutex;
+	std::mutex SNode::LobbiesMutex;
 
 	DWORD _stdcall SNode::ServerNodeCommandReceiver(void  *lparam)
 	{
@@ -43,6 +47,22 @@ namespace Nodes
 				case HNFriendAtIndexRequest: {
 					HandleFriendAtIndexRequest(recv, sender);
 					break;
+				} 
+				case HNCreateSessionRequest: {
+					HandleCreateSessionRequest(recv, sender);
+					break;
+				}
+				case HNUpdateSessionRequest: {
+					HandleUpdateSessionRequest(recv, sender);
+					break;
+				}
+				case HNFindSessionsRequest: {
+					HandleFindSessionsRequest(recv, sender);
+					break;
+				}
+				case HNDeleteSessionRequest: {
+					HandleDeleteSessionRequest(recv, sender);
+					break;
 				}
 				default:
 					break;
@@ -61,14 +81,37 @@ namespace Nodes
 
 		printf("Received packet from client from %ul with xuid %llu\n", htonl(sender.Address), pingPacket.ClientID);
 
-		HedgeClient *client = new HedgeClient();
-		client->ClientID = pingPacket.ClientID;
-		client->isAnonymous = pingPacket.isAnonymous;
-		client->isAuthenticated = pingPacket.isAuthenticated;
-		client->LastPacketSequenceID = pingPacket.SequenceID;
-		client->LastSeen = time(NULL);
-		client->addr = sender;
-		Clients.push_back(*client);
+		ClientsMutex.lock();
+		std::unordered_map<uint64_t, std::shared_ptr<HedgeClient>>::const_iterator find = Clients.find(pingPacket.ClientID);
+		ClientsMutex.unlock();
+
+		if (find == Clients.end()){
+			HedgeClient client;
+			client.ClientID = pingPacket.ClientID;
+			client.isAnonymous = pingPacket.isAnonymous;
+			client.isAuthenticated = pingPacket.isAuthenticated;
+			client.LastPacketSequenceID = pingPacket.SequenceID;
+			client.LastSeen = time(NULL);
+			client.addr = sender;
+			ClientsMutex.lock();
+			Clients[pingPacket.ClientID] = std::shared_ptr<HedgeClient>(&client);
+			ClientsMutex.unlock();
+			ClientIDS.push_back(pingPacket.ClientID);
+		}
+		else{
+			//Updates are made while locked, we should probably benchmark this
+			ClientsMutex.lock();
+			std::shared_ptr<HedgeClient> client = find->second;
+
+			HedgeClient *hc = client.get();
+			hc->ClientID = pingPacket.ClientID;
+			hc->isAnonymous = pingPacket.isAnonymous;
+			hc->isAuthenticated = pingPacket.isAuthenticated;
+			hc->LastPacketSequenceID = pingPacket.SequenceID;
+			hc->LastSeen = time(NULL);
+			hc->addr = sender;
+			ClientsMutex.unlock();
+		}
 
 		ByteBuffer buf = ByteBuffer::ByteBuffer();
 		buf.WriteInt16(1);
@@ -114,7 +157,7 @@ namespace Nodes
 		friendAtIndexPacket.TimeStamp = time(NULL);
 		uint64_t friendId = 0x1100001DEADC0DE;
 		if (Clients.size() > index){
-			friendId = Clients.at(index).ClientID;
+			friendId = ClientIDS.at(index);
 		}
 		friendAtIndexPacket.friendSteamID = friendId;
 
@@ -122,6 +165,92 @@ namespace Nodes
 		friendAtIndexPacket.Serialize(&outBuffer);
 		sender.Port = 20000;
 		Network::SocketManager::Send_UDP(&sender, outBuffer.GetLength(), outBuffer.GetBuffer<void>());
+	}
+
+	void SNode::HandleCreateSessionRequest(ByteBuffer &Buffer, hAddress sender){
+
+		HedgePrint("Received a CreateSessionRequest");
+		Network::NetworkPacket inPacket;
+		inPacket.Deserialize(&Buffer);
+
+		HedgeLobby lobby;
+		lobby.HostAddress = Buffer.ReadString();
+		lobby.Gametype = Buffer.ReadUInt32();
+		lobby.MaxPlayers = Buffer.ReadUInt32();
+		lobby.PlayerCount = 0;
+		lobby.SessionID = rand();
+
+		LobbiesMutex.lock();
+		Lobbies[lobby.SessionID] = std::shared_ptr<HedgeLobby>(&lobby);
+		LobbiesMutex.unlock();
+
+		sender.Port = 20000;
+		ByteBuffer outBuffer;
+		inPacket.eventType = HNCreateSessionResponse;
+		inPacket.TimeStamp = time(NULL);
+		inPacket.Serialize(&outBuffer);
+
+		outBuffer.WriteUInt64(lobby.SessionID);
+		Network::SocketManager::Send_UDP(&sender, outBuffer.GetLength(), outBuffer.GetBuffer<void>());
+	}
+
+	void SNode::HandleUpdateSessionRequest(ByteBuffer &Buffer, hAddress sender){
+		HedgePrint("Received a UpdateSessionRequest");
+		Network::NetworkPacket inPacket;
+		inPacket.Deserialize(&Buffer);
+		uint64_t SessionID = Buffer.ReadUInt64();
+		ByteString blobData = Buffer.ReadBlob();
+
+		LobbiesMutex.lock();
+		std::unordered_map<uint64_t, std::shared_ptr<HedgeLobby>>::const_iterator find = Lobbies.find(SessionID);
+		LobbiesMutex.unlock();
+
+		if (find == Lobbies.end()){
+			HedgePrint("UpdateSession, Lobby not found!");
+		}
+		else
+		{
+			//Updates are made while locked, we should probably benchmark this
+			LobbiesMutex.lock();
+			std::shared_ptr<HedgeLobby> lobby = find->second;
+
+			HedgeLobby *hl = lobby.get();
+			hl->LobbyBlobData = blobData;
+			LobbiesMutex.unlock();
+		}
+	}
+
+	void SNode::HandleFindSessionsRequest(ByteBuffer &Buffer, hAddress sender){
+		HedgePrint("Received a FindSessionsRequest");
+		Network::NetworkPacket inPacket;
+		inPacket.Deserialize(&Buffer);
+
+		sender.Port = 20000;
+		ByteBuffer outBuffer;
+		inPacket.eventType = HNFindSessionsResponse;
+		inPacket.TimeStamp = time(NULL);
+		inPacket.Serialize(&outBuffer);
+
+		outBuffer.WriteUInt32(Lobbies.size());
+		for (auto it = Lobbies.begin(); it != Lobbies.end(); ++it){
+			std::shared_ptr<HedgeLobby> lobby = it->second;
+			HedgeLobby *hl = lobby.get();
+			outBuffer.WriteBlob(&hl->LobbyBlobData);
+		}
+		Network::SocketManager::Send_UDP(&sender, outBuffer.GetLength(), outBuffer.GetBuffer<void>());
+	}
+
+	void SNode::HandleDeleteSessionRequest(ByteBuffer &Buffer, hAddress sender){
+		HedgePrint("Received a DeleteSessionRequest");
+		Network::NetworkPacket inPacket;
+		inPacket.Deserialize(&Buffer);
+		uint64_t SessionID = Buffer.ReadUInt64();
+		LobbiesMutex.lock();
+		std::unordered_map<uint64_t, std::shared_ptr<HedgeLobby>>::const_iterator find = Lobbies.find(SessionID);
+		if (find != Lobbies.end()){
+			Lobbies.erase(find);
+		}
+		LobbiesMutex.unlock();
 	}
 
 	bool SNode::InitializeNode(){
