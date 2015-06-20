@@ -68,6 +68,14 @@
 #endif
 #endif
 
+// Plugin helpers.
+#ifdef _WIN64
+#define Base_RelayMessage(inBuffer,outBuffer,flags)	((void (__cdecl *)(void *, void *, int))GetProcAddress(GetModuleHandleA("steam_api64.dll"), "Handler_RelayMessage"))(inBuffer,outBuffer,flags)
+#else
+#define Base_RelayMessage(inBuffer, outBuffer,  flags)	((void (__cdecl *)(void *, void *, int ))GetProcAddress(GetModuleHandleA("steam_api.dll"), "Handler_RelayMessage"))(inBuffer, outBuffer,  flags)
+#endif
+//__declspec(dllexport) void __cdecl Handler_RelayMessage(void *inBuffer, void *outBuffer, int flags)
+
 #define HardDebugBreak() MessageBoxA(0, __FUNCTION__, 0, 0);
 #define PrintCurrentFunction()	pDBGPrint("[DBG]: %s", __FUNCTION__)
 
