@@ -18,13 +18,6 @@ uint32_t PreInit()
 	//we can be only snodes as of now
 	Nodes::SNode::InitializeNode();
 
-	ByteBuffer *inBuffer =  new ByteBuffer();
-	//test data
-	inBuffer->WriteInt32(213);
-	ByteBuffer *outBuffer = new ByteBuffer();
-	HedgePrint("address is %d ", inBuffer);
-	Base_RelayMessage(inBuffer, outBuffer, 1);
-
 	return 1;
 }
 

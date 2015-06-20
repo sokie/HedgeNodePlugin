@@ -191,6 +191,7 @@ namespace Nodes
 		inPacket.Serialize(&outBuffer);
 
 		outBuffer.WriteUInt64(lobby.SessionID);
+		DBGPrint("sending session id %ul", lobby.SessionID);
 		Network::SocketManager::Send_UDP(&sender, outBuffer.GetLength(), outBuffer.GetBuffer<void>());
 	}
 
