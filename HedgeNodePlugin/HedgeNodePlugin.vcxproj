@@ -125,6 +125,11 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>if "%COMPUTERNAME%" == "MAURICE-PC" (
+    copy /y "$(TargetPath)" "D:\Games\SteamLibrary\SteamApps\common\Call of Duty Black Ops II\Plugins\"
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -157,6 +162,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>if "%COMPUTERNAME%" == "MAURICE-PC" (
+    copy /y "$(TargetPath)" "D:\Games\SteamLibrary\SteamApps\common\Call of Duty Black Ops II\Plugins\"
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
