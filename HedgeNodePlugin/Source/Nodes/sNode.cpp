@@ -179,15 +179,15 @@ namespace Nodes
 		Network::NetworkPacket inPacket;
 		inPacket.Deserialize(&Buffer);
 
-		HedgeLobby lobby;
-		lobby.HostAddress = Buffer.ReadString();
-		lobby.Gametype = Buffer.ReadUInt32();
-		lobby.MaxPlayers = Buffer.ReadUInt32();
-		lobby.PlayerCount = 0;
-		lobby.SessionID = rand();
+		HedgeLobby* lobby = new HedgeLobby();
+		lobby->HostAddress = Buffer.ReadString();
+		lobby->Gametype = Buffer.ReadUInt32();
+		lobby->MaxPlayers = Buffer.ReadUInt32();
+		lobby->PlayerCount = 0;
+		lobby->SessionID = rand();
 
 		LobbiesMutex.lock();
-		Lobbies[lobby.SessionID] = std::shared_ptr<HedgeLobby>(&lobby);
+		Lobbies[lobby->SessionID] = std::shared_ptr<HedgeLobby>(lobby);
 		LobbiesMutex.unlock();
 
 		sender.Port = 20000;
@@ -196,15 +196,17 @@ namespace Nodes
 		inPacket.TimeStamp = time(NULL);
 		inPacket.Serialize(&outBuffer);
 
-		outBuffer.WriteUInt64(lobby.SessionID);
-		DBGPrint("sending session id %ul", lobby.SessionID);
+		outBuffer.WriteUInt64(lobby->SessionID);
+		DBGPrint("sending session id %ul", lobby->SessionID);
 		Network::SocketManager::Send_UDP(&sender, outBuffer.GetLength(), outBuffer.GetBuffer<void>());
 	}
 
-	void SNode::HandleUpdateSessionRequest(ByteBuffer &Buffer, hAddress sender){
+	void SNode::HandleUpdateSessionRequest(ByteBuffer &Buffer, hAddress sender)
+	{
 		HedgePrint("Received a UpdateSessionRequest");
 		Network::NetworkPacket inPacket;
 		inPacket.Deserialize(&Buffer);
+
 		uint64_t SessionID = Buffer.ReadUInt64();
 		ByteString blobData = Buffer.ReadBlob();
 
@@ -212,7 +214,8 @@ namespace Nodes
 		auto find = Lobbies.find(SessionID);
 		LobbiesMutex.unlock();
 
-		if (find == Lobbies.end()){
+		if (find == Lobbies.end())
+		{
 			HedgePrint("UpdateSession, Lobby not found!");
 		}
 		else
@@ -239,24 +242,32 @@ namespace Nodes
 		inPacket.Serialize(&outBuffer);
 
 		outBuffer.WriteUInt32(Lobbies.size());
-		for (auto it = Lobbies.begin(); it != Lobbies.end(); ++it){
+
+		for (auto it = Lobbies.begin(); it != Lobbies.end(); ++it)
+		{
 			std::shared_ptr<HedgeLobby> lobby = it->second;
 			HedgeLobby *hl = lobby.get();
 			outBuffer.WriteBlob(&hl->LobbyBlobData);
 		}
+
 		Network::SocketManager::Send_UDP(&sender, outBuffer.GetLength(), outBuffer.GetBuffer<void>());
 	}
 
-	void SNode::HandleDeleteSessionRequest(ByteBuffer &Buffer, hAddress sender){
+	void SNode::HandleDeleteSessionRequest(ByteBuffer &Buffer, hAddress sender)
+	{
 		HedgePrint("Received a DeleteSessionRequest");
 		Network::NetworkPacket inPacket;
 		inPacket.Deserialize(&Buffer);
 		uint64_t SessionID = Buffer.ReadUInt64();
+
 		LobbiesMutex.lock();
-		std::unordered_map<uint64_t, std::shared_ptr<HedgeLobby>>::const_iterator find = Lobbies.find(SessionID);
-		if (find != Lobbies.end()){
+
+		auto find = Lobbies.find(SessionID);
+		if (find != Lobbies.end())
+		{
 			Lobbies.erase(find);
 		}
+
 		LobbiesMutex.unlock();
 	}
 
