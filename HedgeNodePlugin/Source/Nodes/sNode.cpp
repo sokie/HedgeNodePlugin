@@ -24,11 +24,14 @@ namespace Nodes
 		uint16_t port = 31337;
 		Network::SocketManager::Create_UDP(&port, false);
 
-		char *recvBuffer = (char *)malloc(sizeof(char) * 1024);
+		char recvBuffer[1024] = { 0 };
 		hAddress sender = hAddress::hAddress();
-		while (true){
+
+		while (true)
+		{
 			int len = Network::SocketManager::Receive_UDP(port, 1024, recvBuffer, &sender);
-			if (len > 0){
+			if (len > 0)
+			{
 				ByteBuffer recv = ByteBuffer::ByteBuffer(len, (uint8_t *)recvBuffer);
 
 				int16_t eventType;
@@ -74,7 +77,8 @@ namespace Nodes
 		return 0;
 	}
 
-	void SNode::HandlePingRequest(ByteBuffer &Buffer, hAddress sender){
+	void SNode::HandlePingRequest(ByteBuffer &Buffer, hAddress sender)
+	{
 		Network::PingPacket	pingPacket;
 
 		pingPacket.Deserialize(&Buffer);
@@ -82,23 +86,25 @@ namespace Nodes
 		printf("Received packet from client from %ul with xuid %llu\n", htonl(sender.Address), pingPacket.ClientID);
 
 		ClientsMutex.lock();
-		std::unordered_map<uint64_t, std::shared_ptr<HedgeClient>>::const_iterator find = Clients.find(pingPacket.ClientID);
+		auto find = Clients.find(pingPacket.ClientID);
 		ClientsMutex.unlock();
 
-		if (find == Clients.end()){
-			HedgeClient client;
-			client.ClientID = pingPacket.ClientID;
-			client.isAnonymous = pingPacket.isAnonymous;
-			client.isAuthenticated = pingPacket.isAuthenticated;
-			client.LastPacketSequenceID = pingPacket.SequenceID;
-			client.LastSeen = time(NULL);
-			client.addr = sender;
+		if (find == Clients.end())
+		{
+			HedgeClient* client = new HedgeClient();
+			client->ClientID = pingPacket.ClientID;
+			client->isAnonymous = pingPacket.isAnonymous;
+			client->isAuthenticated = pingPacket.isAuthenticated;
+			client->LastPacketSequenceID = pingPacket.SequenceID;
+			client->LastSeen = time(NULL);
+			client->addr = sender;
 			ClientsMutex.lock();
-			Clients[pingPacket.ClientID] = std::shared_ptr<HedgeClient>(&client);
+			Clients[pingPacket.ClientID] = std::shared_ptr<HedgeClient>(client);
 			ClientsMutex.unlock();
 			ClientIDS.push_back(pingPacket.ClientID);
 		}
-		else{
+		else
+		{
 			//Updates are made while locked, we should probably benchmark this
 			ClientsMutex.lock();
 			std::shared_ptr<HedgeClient> client = find->second;
@@ -121,8 +127,8 @@ namespace Nodes
 		Network::SocketManager::Send_UDP(&sender, buf.GetLength(), buf.GetBuffer<void>());
 	}
 
-	void SNode::HandleFriendCountRequest(ByteBuffer &Buffer, hAddress sender){
-
+	void SNode::HandleFriendCountRequest(ByteBuffer &Buffer, hAddress sender)
+	{
 		HedgePrint("Received a FriendCountRequest");
 
 		Network::NetworkPacket inPacket;
@@ -203,7 +209,7 @@ namespace Nodes
 		ByteString blobData = Buffer.ReadBlob();
 
 		LobbiesMutex.lock();
-		std::unordered_map<uint64_t, std::shared_ptr<HedgeLobby>>::const_iterator find = Lobbies.find(SessionID);
+		auto find = Lobbies.find(SessionID);
 		LobbiesMutex.unlock();
 
 		if (find == Lobbies.end()){
